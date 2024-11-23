@@ -1,5 +1,3 @@
-// server.js
-
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -17,7 +15,7 @@ const app = express();
 
 // Cấu hình CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'https://frontend-mern-food-ordering-q5qyvyw5y.vercel.app/',
+  origin: process.env.FRONTEND_URL || '*', // Chấp nhận mọi nguồn gốc hoặc URL frontend cụ thể
   credentials: true,
 }));
 
@@ -27,7 +25,12 @@ app.use(express.json());
 // Tích hợp Swagger
 swaggerSetup(app);
 
-// Routes
+// Route mặc định
+app.get('/', (req, res) => {
+  res.send('Welcome to the MERN Food Ordering API. Visit /api-docs for API documentation.');
+});
+
+// Routes API
 app.use('/api/foodItems', foodItemsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/users', usersRouter);
