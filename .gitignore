@@ -1,0 +1,65 @@
+# Thư mục node_modules chứa các dependencies của dự án
+node_modules/
+
+# Các tệp log
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tệp chứa biến môi trường
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dữ liệu runtime như PID files
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Thư mục coverage cho test coverage
+coverage/
+
+# Thư mục build (nếu có)
+build/
+dist/
+
+# Thư mục chứa các gói phụ thuộc cũ (nếu sử dụng Bower)
+bower_components/
+
+# NPM cache thư mục
+.npm/
+
+# ESLint cache
+.eslintcache
+
+# Thư mục .cache cho các công cụ build như Parcel, Webpack, v.v.
+.cache/
+
+# Thư mục dành cho công cụ kiểm thử như nyc
+.nyc_output/
+
+# Thư mục dành cho Grunt
+.grunt/
+
+# Thư mục dành cho các gói phụ thuộc của JSPM
+jspm_packages/
+
+# Tệp cấu hình của IDEs và Editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Tệp hệ thống của macOS
+.DS_Store
+
+# Tệp hệ thống của Windows
+Thumbs.db
+ehthumbs.db
