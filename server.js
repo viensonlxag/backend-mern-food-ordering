@@ -18,34 +18,26 @@ const app = express();
 // Middleware bảo mật HTTP Header với helmet
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https://backend-mern-food-ordering.onrender.com"], // Cho phép hình ảnh từ Render
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-      },
-    },
-    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Đảm bảo hoạt động với hình ảnh cross-origin
+    contentSecurityPolicy: false, // Tắt CSP để tránh xung đột khi dùng `cross-origin`
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
 
 // Middleware log request
 app.use(morgan('dev'));
 
-// Cấu hình CORS
+// Cấu hình CORS cho phép tất cả
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'https://frontend-mern-food-ordering.vercel.app',
+    origin: '*', // Cho phép tất cả các domain truy cập
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Các method được phép
-    credentials: true,
   })
 );
 
 // Middleware parse JSON
 app.use(express.json());
 
-// Middleware xử lý lỗi tổng quát (giữ sau các route khác)
+// Middleware xử lý lỗi tổng quát
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send({ error: 'Something went wrong on the server!' });
@@ -109,6 +101,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server đang chạy trên cổng ${PORT}`);
   const API_URL = process.env.API_URL || 'https://backend-mern-food-ordering.onrender.com';
-console.log(`API docs available at ${API_URL}/api-docs`);
-
+  console.log(`API docs available at ${API_URL}/api-docs`);
 });
