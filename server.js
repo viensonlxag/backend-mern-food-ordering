@@ -3,6 +3,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const swaggerSetup = require('./swagger'); // Import file Swagger
+const helmet = require('helmet'); // Bảo mật HTTP header
+const morgan = require('morgan'); // Middleware log request
 const foodItemsRouter = require('./routes/foodItems');
 const ordersRouter = require('./routes/orders');
 const usersRouter = require('./routes/users');
@@ -13,21 +15,40 @@ dotenv.config();
 
 const app = express();
 
-// Middleware log tất cả request
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url}`);
-  next();
-});
+// Middleware bảo mật HTTP Header với helmet
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:"], // Cho phép Base64 images
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+  })
+);
+
+// Middleware log request
+app.use(morgan('dev'));
 
 // Cấu hình CORS
-app.use(cors({
-  origin: [process.env.FRONTEND_URL || 'https://frontend-mern-food-ordering-q5qyvyw5y.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Các method được phép
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'https://frontend-mern-food-ordering-q5qyvyw5y.vercel.app',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Các method được phép
+    credentials: true,
+  })
+);
 
 // Middleware parse JSON
 app.use(express.json());
+
+// Middleware xử lý lỗi (bắt lỗi các request không hợp lệ)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ error: 'Something went wrong!' });
+});
 
 // Tích hợp Swagger
 swaggerSetup(app);
@@ -43,6 +64,11 @@ app.get('/health', (req, res) => {
   res.status(200).send('API is healthy');
 });
 
+// Route mặc định cho trang chính
+app.get('/', (req, res) => {
+  res.redirect('/api-docs'); // Chuyển hướng tới tài liệu Swagger
+});
+
 // Kết nối MongoDB
 const mongoURI = process.env.MONGODB_URI;
 
@@ -51,10 +77,11 @@ if (!mongoURI) {
   process.exit(1);
 }
 
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose
+  .connect(mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log('Đã kết nối tới MongoDB'))
   .catch((err) => {
     console.error('Không thể kết nối tới MongoDB:', err);
@@ -67,6 +94,13 @@ mongoose.connection.on('connected', () => {
 
 mongoose.connection.on('error', (err) => {
   console.error('Lỗi kết nối MongoDB:', err);
+});
+
+// Middleware xử lý lỗi cho các route không tồn tại
+app.use((req, res, next) => {
+  res.status(404).send({
+    error: 'Route không tồn tại. Vui lòng kiểm tra lại URL.',
+  });
 });
 
 // Khởi động server

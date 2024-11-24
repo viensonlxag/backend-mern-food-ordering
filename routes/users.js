@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const bcrypt = require('bcryptjs'); // Thay bcrypt bằng bcryptjs
+const bcrypt = require('bcryptjs');
 
 /**
  * @swagger
@@ -82,7 +82,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Email đã được sử dụng' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // bcryptjs hoạt động giống bcrypt
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({ name, email, password: hashedPassword });
     await user.save();
@@ -124,31 +124,25 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   console.info(`Login Attempt: Email - ${email}`);
   try {
-    // Tìm người dùng theo email
     const user = await User.findOne({ email });
     if (!user) {
       console.warn(`Login Failed: Email ${email} không tồn tại.`);
       return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng' });
     }
 
-    // So sánh mật khẩu
-    const isMatch = await bcrypt.compare(password, user.password); // bcryptjs hoạt động giống bcrypt
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       console.warn(`Login Failed: Sai mật khẩu cho Email ${email}.`);
       return res.status(400).json({ message: 'Email hoặc mật khẩu không đúng' });
     }
 
-    // Chuyển đổi đối tượng người dùng thành plain object và loại bỏ trường password
     const userData = user.toObject();
     delete userData.password;
 
-    // Log dữ liệu người dùng sẽ được trả về
     console.info(`Login Success: User ID - ${userData._id}, Name - ${userData.name}, Email - ${userData.email}`);
-
-    // Trả về phản hồi với dữ liệu người dùng đầy đủ
     res.json({
       message: 'Đăng nhập thành công',
-      user: userData, // Bao gồm _id, name, email và các trường cần thiết khác
+      user: userData,
     });
   } catch (err) {
     console.error('Login Error:', err.message);
