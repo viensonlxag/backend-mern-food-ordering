@@ -8,26 +8,30 @@ const swaggerOptions = {
     info: {
       title: "Food Ordering API",
       version: "1.0.0",
-      description: "API cho ứng dụng đặt món ăn",
+      description: "API documentation for the Food Ordering application",
     },
     servers: [
       {
-        url: "http://localhost:5000", // URL backend của bạn
+        url: process.env.API_URL || "https://backend-mern-food-ordering.onrender.com", // URL Backend trên Render
+        description: "Production server",
+      },
+      {
+        url: "http://localhost:5000", // URL cục bộ khi phát triển
+        description: "Local development server",
       },
     ],
     components: {
       schemas: {
-        // Schema cho Order
         Order: {
           type: "object",
           properties: {
             _id: {
               type: "string",
-              description: "ID của đơn hàng",
+              description: "The ID of the order",
             },
             userId: {
               type: "string",
-              description: "ID của người dùng",
+              description: "The ID of the user who placed the order",
             },
             items: {
               type: "array",
@@ -36,100 +40,103 @@ const swaggerOptions = {
                 properties: {
                   foodItem: {
                     type: "string",
-                    description: "ID món ăn",
+                    description: "The ID of the food item",
                   },
                   name: {
                     type: "string",
-                    description: "Tên món ăn",
+                    description: "The name of the food item",
                   },
                   price: {
                     type: "number",
-                    description: "Giá món ăn",
+                    description: "The price of the food item",
                   },
                   quantity: {
                     type: "integer",
-                    description: "Số lượng món ăn",
+                    description: "The quantity ordered",
                   },
                 },
               },
+              description: "List of items in the order",
             },
             totalPrice: {
               type: "number",
-              description: "Tổng giá trị đơn hàng",
+              description: "The total price of the order",
             },
             customerName: {
               type: "string",
-              description: "Tên khách hàng",
+              description: "The name of the customer",
             },
             address: {
               type: "string",
-              description: "Địa chỉ giao hàng",
+              description: "The delivery address",
             },
             phone: {
               type: "string",
-              description: "Số điện thoại khách hàng",
+              description: "The customer's phone number",
             },
             createdAt: {
               type: "string",
               format: "date-time",
-              description: "Thời gian tạo đơn hàng",
+              description: "Order creation timestamp",
             },
             updatedAt: {
               type: "string",
               format: "date-time",
-              description: "Thời gian cập nhật đơn hàng",
+              description: "Order update timestamp",
             },
           },
+          required: ["userId", "items", "totalPrice", "customerName", "address", "phone"],
         },
-        // Schema cho FoodItem
         FoodItem: {
           type: "object",
           properties: {
             _id: {
               type: "string",
-              description: "ID của món ăn",
+              description: "The ID of the food item",
             },
             name: {
               type: "string",
-              description: "Tên món ăn",
+              description: "The name of the food item",
             },
             description: {
               type: "string",
-              description: "Mô tả món ăn",
+              description: "A short description of the food item",
             },
             price: {
               type: "number",
-              description: "Giá của món ăn",
+              description: "The price of the food item",
             },
             category: {
               type: "string",
-              description: "Loại món ăn",
+              description: "The category of the food item",
             },
             imageUrl: {
               type: "string",
-              description: "URL hình ảnh của món ăn",
+              description: "URL of the food item's image",
             },
             createdAt: {
               type: "string",
               format: "date-time",
-              description: "Thời gian tạo món ăn",
+              description: "Food item creation timestamp",
             },
             updatedAt: {
               type: "string",
               format: "date-time",
-              description: "Thời gian cập nhật món ăn",
+              description: "Food item update timestamp",
             },
           },
+          required: ["name", "price", "category"],
         },
       },
     },
   },
-  apis: ["./routes/*.js"], // Đường dẫn tới các file chứa định nghĩa API
+  apis: ["./routes/*.js"], // Chỉ định nơi định nghĩa các route API
 };
 
-// Khởi tạo Swagger
+// Khởi tạo Swagger Docs
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 module.exports = (app) => {
+  // Tích hợp Swagger UI vào ứng dụng
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 };

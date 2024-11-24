@@ -13,9 +13,16 @@ dotenv.config();
 
 const app = express();
 
+// Middleware log tất cả request
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url}`);
+  next();
+});
+
 // Cấu hình CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*', // Chấp nhận mọi nguồn gốc hoặc URL frontend cụ thể
+  origin: [process.env.FRONTEND_URL || 'https://frontend-mern-food-ordering-q5qyvyw5y.vercel.app'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Các method được phép
   credentials: true,
 }));
 
@@ -25,12 +32,7 @@ app.use(express.json());
 // Tích hợp Swagger
 swaggerSetup(app);
 
-// Route mặc định
-app.get('/', (req, res) => {
-  res.send('Welcome to the MERN Food Ordering API. Visit /api-docs for API documentation.');
-});
-
-// Routes API
+// Routes
 app.use('/api/foodItems', foodItemsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/users', usersRouter);
@@ -58,6 +60,14 @@ mongoose.connect(mongoURI, {
     console.error('Không thể kết nối tới MongoDB:', err);
     process.exit(1);
   });
+
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB đã kết nối thành công!');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('Lỗi kết nối MongoDB:', err);
+});
 
 // Khởi động server
 const PORT = process.env.PORT || 5000;
