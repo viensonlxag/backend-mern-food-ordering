@@ -21,11 +21,12 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "data:"], // Cho phép Base64 images
+        imgSrc: ["'self'", "data:", "https://backend-mern-food-ordering.onrender.com"], // Cho phép hình ảnh từ Render
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
       },
     },
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // Đảm bảo hoạt động với hình ảnh cross-origin
   })
 );
 
@@ -35,7 +36,7 @@ app.use(morgan('dev'));
 // Cấu hình CORS
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'https://frontend-mern-food-ordering-q5qyvyw5y.vercel.app',
+    origin: process.env.FRONTEND_URL || 'https://frontend-mern-food-ordering.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Các method được phép
     credentials: true,
   })
@@ -44,10 +45,10 @@ app.use(
 // Middleware parse JSON
 app.use(express.json());
 
-// Middleware xử lý lỗi (bắt lỗi các request không hợp lệ)
+// Middleware xử lý lỗi tổng quát (giữ sau các route khác)
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send({ error: 'Something went wrong!' });
+  res.status(500).send({ error: 'Something went wrong on the server!' });
 });
 
 // Tích hợp Swagger
@@ -84,7 +85,7 @@ mongoose
   })
   .then(() => console.log('Đã kết nối tới MongoDB'))
   .catch((err) => {
-    console.error('Không thể kết nối tới MongoDB:', err);
+    console.error('Không thể kết nối tới MongoDB:', err.message);
     process.exit(1);
   });
 
@@ -93,7 +94,7 @@ mongoose.connection.on('connected', () => {
 });
 
 mongoose.connection.on('error', (err) => {
-  console.error('Lỗi kết nối MongoDB:', err);
+  console.error('Lỗi kết nối MongoDB:', err.message);
 });
 
 // Middleware xử lý lỗi cho các route không tồn tại
@@ -107,5 +108,7 @@ app.use((req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server đang chạy trên cổng ${PORT}`);
-  console.log(`API docs available at ${process.env.API_URL || `https://your-api-domain.onrender.com`}/api-docs`);
+  const API_URL = process.env.API_URL || 'https://backend-mern-food-ordering.onrender.com';
+console.log(`API docs available at ${API_URL}/api-docs`);
+
 });
